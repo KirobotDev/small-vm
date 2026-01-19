@@ -1,0 +1,403 @@
+LOAD R3, 10   
+LOAD R4, 32   
+LOAD R5, 62   
+
+
+LOOP:
+    OUT R3
+    OUT R5
+    OUT R4
+    LOAD R1, 1000
+    LOAD R0, 0
+    LOAD R2, 3000
+    STORER R0, R2
+
+READ_LOOP:
+    IN R0
+    LOAD R2, 0
+    CMP R0, R2
+    JZ READ_LOOP
+    CMP R0, R3
+    JZ EXECUTE
+    LOAD R2, 8
+    CMP R0, R2
+    JZ HANDLE_BS
+    
+    OUT R0
+    STORER R0, R1
+    LOAD R2, 2     
+    ADD R1, R2
+    JMP READ_LOOP
+
+HANDLE_BS:
+    LOAD R2, 1000
+    CMP R1, R2
+    JZ READ_LOOP
+    LOAD R0, 8
+    OUT R0
+    LOAD R0, 32
+    OUT R0
+    LOAD R0, 8
+    OUT R0
+    LOAD R2, 2
+    SUB R1, R2
+    JMP READ_LOOP
+
+EXECUTE:
+    LOAD R2, 0
+    STORER R2, R1
+    OUT R3
+    
+    LOAD R1, 1000
+PARSE_LOOP:
+    LOADR R0, R1
+    LOAD R2, 0
+    CMP R0, R2
+    JZ PARSE_END
+    LOAD R2, 32
+    CMP R0, R2
+    JZ FOUND_SPACE
+    LOAD R2, 2
+    ADD R1, R2
+    JMP PARSE_LOOP
+
+FOUND_SPACE:
+    LOAD R2, 0
+    STORER R2, R1
+    
+    LOAD R2, 2
+    ADD R1, R2
+    LOAD R2, 3000
+    STORER R1, R2
+    JMP PARSE_END
+
+PARSE_END:
+
+    LOAD R1, 1000
+    CALL STRCMP_LS
+    JZ DO_LS
+    
+    LOAD R1, 1000
+    CALL STRCMP_CLEAR
+    JZ DO_CLEAR
+    
+    LOAD R1, 1000
+    CALL STRCMP_NEO
+    JZ DO_NEO
+
+    LOAD R1, 1000
+    CALL STRCMP_MKDIR
+    JZ DO_MKDIR
+    
+    LOAD R1, 1000
+    CALL STRCMP_NANO
+    JZ DO_NANO
+
+    LOAD R0, 63
+    OUT R0
+    OUT R3
+    JMP LOOP
+
+DO_LS:
+    LOAD R0, 2048
+    LOAD R1, 57348 
+    STORER R0, R1
+    LOAD R0, 1
+    LOAD R1, 57344 
+    STORER R0, R1
+    LOAD R1, 2048
+    CALL PRINT_STR
+    JMP LOOP
+
+DO_CLEAR:
+    LOAD R0, 30
+CLEAR_L:
+    OUT R3
+    LOAD R2, 1
+    SUB R0, R2
+    LOAD R2, 0
+    CMP R0, R2
+    JZ LOOP
+    JMP CLEAR_L
+
+DO_NEO:
+    CALL PRINT_NEO
+    JMP LOOP
+
+DO_MKDIR:
+    LOAD R2, 3000
+    LOADR R1, R2
+    LOAD R2, 0
+    CMP R1, R2
+    JZ LOOP
+    
+    LOAD R2, 2000
+PACK_LOOP_MKDIR:
+    LOADR R0, R1
+    STORER R0, R2
+    JMP DO_MKDIR_PACK
+
+DO_MKDIR_PACK:
+    LOAD R2, 2000
+PACK_LOOP:
+    LOADR R0, R1
+    LOAD R4, 0
+    CMP R0, R4
+    JZ PACK_DONE
+    STORER R0, R2
+    LOAD R4, 1 
+    ADD R2, R4
+    LOAD R4, 2 
+    ADD R1, R4
+    JMP PACK_LOOP
+PACK_DONE:
+    LOAD R4, 0
+    STORER R4, R2 
+
+    LOAD R0, 2000
+    LOAD R1, 57346 
+    STORER R0, R1
+    LOAD R0, 2000
+    LOAD R1, 57348 
+    STORER R0, R1
+    LOAD R0, 0 
+    LOAD R1, 57350 
+    STORER R0, R1
+    LOAD R0, 3
+    LOAD R1, 57344
+    STORER R0, R1
+    JMP LOOP
+
+DO_NANO:
+    LOAD R2, 3000
+    LOADR R1, R2
+    LOAD R2, 0
+    CMP R1, R2
+    JZ NANO_UI
+    
+    LOAD R2, 2000
+    PUSH R1
+    PUSH R2
+    CALL PACK_STR
+    POP R2
+    POP R1
+
+    LOAD R0, 2000
+    LOAD R1, 57346 
+    STORER R0, R1
+    LOAD R0, 32768 
+    LOAD R1, 57348 
+    STORER R0, R1
+    LOAD R0, 2 
+    LOAD R1, 57344
+    STORER R0, R1
+    
+NANO_UI:
+    OUT R3
+    LOAD R0, 78
+    OUT R0
+    OUT R3
+    LOAD R1, 32768
+    CALL PRINT_STR_PACKED
+    
+    LOAD R1, 32768
+FIND_END:
+    LOADR R0, R1
+    LOAD R1, 32768
+    
+NANO_LOOP:
+    IN R0
+    LOAD R2, 0
+    CMP R0, R2
+    JZ NANO_LOOP
+    
+    LOAD R2, 24
+    CMP R0, R2
+    JZ LOOP
+    
+    LOAD R2, 15
+    CMP R0, R2
+    JZ NANO_SAVE
+    
+    LOAD R2, 10
+    CMP R0, R2
+    JZ NANO_ENTER
+    
+    LOAD R2, 8
+    CMP R0, R2
+    JZ NANO_BS
+    
+    OUT R0
+    STORER R0, R1
+    LOAD R2, 1
+    ADD R1, R2
+    JMP NANO_LOOP
+
+NANO_ENTER:
+    OUT R0
+    STORER R0, R1
+    LOAD R2, 1
+    ADD R1, R2
+    JMP NANO_LOOP
+
+NANO_BS:
+    LOAD R2, 32768
+    CMP R1, R2
+    JZ NANO_LOOP
+    LOAD R0, 8
+    OUT R0
+    LOAD R0, 32
+    OUT R0
+    LOAD R0, 8
+    OUT R0
+    LOAD R2, 1
+    SUB R1, R2
+    JMP NANO_LOOP
+
+NANO_SAVE:
+    LOAD R0, 0
+    STORER R0, R1
+    
+    LOAD R0, 2000
+    LOAD R1, 57346 
+    STORER R0, R1
+    LOAD R0, 32768
+    LOAD R1, 57348 
+    STORER R0, R1
+    
+    LOAD R2, 32768
+    PUSH R1
+    SUB R1, R2 
+    LOAD R0, 57350 
+    STORER R1, R0
+    POP R1
+    
+    LOAD R0, 3
+    LOAD R1, 57344
+    STORER R0, R1
+    
+    LOAD R0, 83 
+    OUT R0
+    JMP NANO_LOOP
+
+PACK_STR:
+L_PACK:
+    LOADR R0, R1
+    LOAD R4, 0
+    CMP R0, R4
+    JZ END_PACK
+    STORER R0, R2
+    LOAD R4, 1
+    ADD R2, R4
+    LOAD R4, 2
+    ADD R1, R4
+    JMP L_PACK
+END_PACK:
+    STORER R4, R2
+    RET
+
+PRINT_STR:
+    PUSH R2
+    PUSH R0
+P_LOOP:
+    LOADR R0, R1
+    LOAD R2, 0
+    CMP R0, R2
+    JZ P_RET
+    OUT R0
+    LOAD R2, 2
+    ADD R1, R2
+    JMP P_LOOP
+P_RET:
+    POP R0
+    POP R2
+    RET
+
+PRINT_STR_PACKED:
+    PUSH R2
+    PUSH R0
+PP_LOOP:
+    LOADR R0, R1
+    OUT R0 
+    LOAD R2, 1
+    ADD R1, R2
+    LOAD R2, 0
+    CMP R0, R2
+    JZ PP_RET
+    JMP PP_LOOP
+PP_RET:
+    POP R0
+    POP R2
+    RET
+
+STRCMP_LS:
+    LOADR R0, R1
+    LOAD R2, 108
+    CMP R0, R2
+    JZ LS_OK
+    LOAD R0, 1
+    RET
+LS_OK:
+    LOAD R0, 0
+    RET
+STRCMP_CLEAR:
+    LOADR R0, R1
+    LOAD R2, 99
+    CMP R0, R2
+    JZ OK
+    LOAD R0, 1
+    RET
+STRCMP_NEO:
+    LOADR R0, R1
+    LOAD R2, 110 
+    CMP R0, R2
+    JZ CHECK_NEO_2
+    LOAD R0, 1
+    RET
+CHECK_NEO_2:
+    LOAD R2, 2
+    ADD R1, R2
+    LOADR R0, R1 
+    LOAD R2, 101 
+    CMP R0, R2
+    JZ OK
+    LOAD R0, 1
+    RET
+
+STRCMP_MKDIR:
+    LOADR R0, R1
+    LOAD R2, 109
+    CMP R0, R2
+    JZ OK
+    LOAD R0, 1
+    RET
+
+STRCMP_NANO:
+    LOADR R0, R1
+    LOAD R2, 110 ; n
+    CMP R0, R2
+    JZ CHECK_NANO_2
+    LOAD R0, 1
+    RET
+CHECK_NANO_2:
+    LOAD R2, 2
+    ADD R1, R2
+    LOADR R0, R1 
+    LOAD R2, 97 
+    CMP R0, R2
+    JZ OK
+    LOAD R0, 1
+    RET
+OK:
+    LOAD R0, 0
+    RET
+
+PRINT_NEO:
+    LOAD R0, 32
+    OUT R0
+    LOAD R0, 95
+    OUT R0
+    OUT R3
+    RET
+
+HALT: HALT
